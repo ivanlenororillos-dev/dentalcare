@@ -35,9 +35,8 @@ RUN composer dump-autoload --optimize
 # Build frontend assets
 RUN npm run build
 
-# Cache config and routes
-RUN php artisan config:clear \
-    && php artisan route:cache \
+# Cache routes and views (NOT config — env vars are only available at runtime on Railway)
+RUN php artisan route:cache \
     && php artisan view:cache
 
 # ---- Production Stage ----
@@ -60,4 +59,4 @@ RUN mkdir -p storage/framework/sessions storage/framework/views storage/framewor
 
 EXPOSE ${PORT:-8080}
 
-CMD php artisan migrate --force && php artisan db:seed --force && php -S 0.0.0.0:${PORT:-8080} -t public
+CMD php artisan config:clear && php artisan migrate --force && php artisan db:seed --force && php -S 0.0.0.0:${PORT:-8080} -t public
